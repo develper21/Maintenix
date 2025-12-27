@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("USER")
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdRequests MaintenanceRequest[] @relation("CreatedBy")
+  assignedRequests MaintenanceRequest[] @relation("AssignedTo")
+  teamMemberships TeamMember[]
+  ledTeams        MaintenanceTeam[]    @relation("TeamLead")
+  defaultForEquipment Equipment[] @relation("DefaultTechnician")
+  passwordResets  PasswordReset[]
+  responsibleCategories EquipmentCategory[] @relation("CategoryResponsible")
+  assignedEquipment Equipment[] @relation("AssignedEmployee")
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([otp])
+}
+
+model EquipmentCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  responsibleId String?
+  responsible   User?   @relation("CategoryResponsible", fields: [responsibleId], references: [id])
+  equipment     Equipment[]
+
+  @@index([responsibleId])
+}
+
+model WorkCenter {
+  id                      String   @id @default(cuid())
+  workCenterId            String   @unique
+  name                    String
+  code                    String?
+  tag                     String?
+  costPerHour             Float?
+  capacityTimeEfficiency  Float?
+  oeeTarget               Float?
+  company                 String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  // Relations
+  alternativeWorkCenters  String? // Comma-separated IDs or JSON
+  requests                MaintenanceRequest[]
+
+  @@index([workCenterId])
+}
+
+model Equipment {
+  id                String   @id @default(cuid())
+  equipmentId       String   @unique
+  name              String
+  serialNumber      String?
+  category          String
+  department        String
+  location          String
+  purchaseDate      DateTime?
+  warrantyExpiry    DateTime?
+  status            String @default("ACTIVE")
+  scrapNote         String?
+  healthPercentage  Float? @default(100)
+  company           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  categoryId          String?
+  equipmentCategory   EquipmentCategory? @relation(fields: [categoryId], references: [id])
+  maintenanceTeamId   String?
+  maintenanceTeam     MaintenanceTeam? @relation(fields: [maintenanceTeamId], references: [id])
+  defaultTechnicianId String?
+  defaultTechnician   User? @relation(fields: [defaultTechnicianId], references: [id], name: "DefaultTechnician")
+  assignedEmployeeId  String?
+  assignedEmployee    User? @relation(fields: [assignedEmployeeId], references: [id], name: "AssignedEmployee")
+  requests            MaintenanceRequest[]
+
+  @@index([categoryId])
+  @@index([maintenanceTeamId])
+  @@index([defaultTechnicianId])
+  @@index([assignedEmployeeId])
+}
+
+model MaintenanceTeam {
+  id        String   @id @default(cuid())
+  teamId    String   @unique
+  name      String
+  teamType  String
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  teamLeadId String?
+  teamLead   User?   @relation("TeamLead", fields: [teamLeadId], references: [id])
+  members    TeamMember[]
+  equipment  Equipment[]
+  requests   MaintenanceRequest[]
+
+  @@index([teamLeadId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId String
+  team   MaintenanceTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model MaintenanceRequest {
+  id            String   @id @default(cuid())
+  requestId     String   @unique
+  subject       String
+  description   String
+  type          String
+  priority      String @default("MEDIUM")
+  status        String @default("NEW")
+  requestDate   DateTime @default(now())
+  scheduledDate DateTime?
+  duration      Float?  // Hours spent
+  company       String?
+  maintenanceFor String @default("EQUIPMENT") // EQUIPMENT or WORK_CENTER
+  worksheet     String? // JSON or text
+  notes         String?
+  instructions  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  equipmentId  String?
+  equipment    Equipment? @relation(fields: [equipmentId], references: [id])
+  
+  workCenterId String?
+  workCenter   WorkCenter? @relation(fields: [workCenterId], references: [id])
+  
+  teamId       String?
+  team         MaintenanceTeam? @relation(fields: [teamId], references: [id])
+  
+  assignedToId String?
+  assignedTo   User? @relation("AssignedTo", fields: [assignedToId], references: [id])
+  
+  createdById  String
+  createdBy    User @relation("CreatedBy", fields: [createdById], references: [id])
+
+  @@index([equipmentId])
+  @@index([workCenterId])
+  @@index([teamId])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([status])
+}
