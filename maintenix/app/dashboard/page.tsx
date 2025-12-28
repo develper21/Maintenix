@@ -36,15 +36,27 @@ interface RequestRow {
     createdAt: string
 }
 
+
 export default function DashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [requests, setRequests] = useState<RequestRow[]>([])
     const [loading, setLoading] = useState(true)
     const { data: session } = useSession()
 
+    // Initial role from session, but allow switching for testing/viewing
+    const [currentRole, setCurrentRole] = useState("ADMIN")
+
+    useEffect(() => {
+        if (session?.user?.role) {
+            setCurrentRole(session.user.role)
+        }
+    }, [session])
+
     useEffect(() => {
         fetchDashboardData()
     }, [])
+
+
 
     const fetchDashboardData = async () => {
         try {
@@ -53,29 +65,39 @@ export default function DashboardPage() {
                 fetch("/api/requests"),
             ])
 
+            if (!equipmentRes.ok || !requestsRes.ok) {
+                throw new Error("Failed to fetch dashboard data")
+            }
+
             const equipment = await equipmentRes.json() as Array<{ healthPercentage?: number }>
-            const allRequests = await requestsRes.json() as Array<{ status: string; priority: string; updatedAt: string }>
+            const allRequests = await requestsRes.json() as RequestRow[]
 
-            // Calculate stats
-            const criticalEquipment = equipment.filter((e) =>
-                (e.healthPercentage || 100) < 30
+            const criticalEquipment = equipment.filter(
+                (e) => (e.healthPercentage ?? 100) < 30
             ).length
 
-            const activeRequests = allRequests.filter((r) =>
-                r.status === "NEW" || r.status === "IN_PROGRESS"
+            const activeRequests = allRequests.filter(
+                (r) => r.status === "NEW" || r.status === "IN_PROGRESS"
             ).length
 
-            const urgentRequests = allRequests.filter((r) =>
-                r.priority === "URGENT"
+            const urgentRequests = allRequests.filter(
+                (r) => r.priority === "URGENT"
             ).length
 
             const today = new Date().toDateString()
-            const completedToday = allRequests.filter((r) =>
-                r.status === "REPAIRED" && new Date(r.updatedAt).toDateString() === today
+            const completedToday = allRequests.filter(
+                (r) =>
+                    r.status === "REPAIRED" &&
+                    new Date(r.createdAt).toDateString() === today
             ).length
 
-            // Calculate technician load (simplified)
-            const technicianLoad = equipment.length > 0 ? Math.min(Math.round((activeRequests / equipment.length) * 100), 100) : 0
+            const technicianLoad =
+                equipment.length > 0
+                    ? Math.min(
+                        Math.round((activeRequests / equipment.length) * 100),
+                        100
+                    )
+                    : 0
 
             setStats({
                 totalEquipment: equipment.length,
@@ -86,9 +108,7 @@ export default function DashboardPage() {
                 technicianLoad,
             })
 
-            // Get recent requests for table
-            const allRequestsFull = await requestsRes.json() as RequestRow[]
-            setRequests(allRequestsFull.slice(0, 10))
+            setRequests(allRequests.slice(0, 10))
         } catch (error) {
             console.error("Error fetching dashboard data:", error)
         } finally {
@@ -104,7 +124,8 @@ export default function DashboardPage() {
         )
     }
 
-    const role = session?.user?.role || "ADMIN"
+    // Role is determined by state (which defaults to session role)
+    const role = currentRole
 
     return (
         <div className="space-y-6">
@@ -112,6 +133,23 @@ export default function DashboardPage() {
                 <div>
                     <h1 className="text-3xl font-bold">Dashboard</h1>
                     <p className="text-muted-foreground">Welcome to MAINTENIX</p>
+                </div>
+
+                {/* Role Switcher for View Testing */}
+                <div className="flex items-center gap-3 bg-muted/50 p-2 rounded-lg border">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium whitespace-nowrap hidden md:block">View as:</span>
+                    <Select value={currentRole} onValueChange={setCurrentRole}>
+                        <SelectTrigger className="w-[140px] h-8 bg-background">
+                            <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="MANAGER">Manager</SelectItem>
+                            <SelectItem value="TECHNICIAN">Technician</SelectItem>
+                            <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
