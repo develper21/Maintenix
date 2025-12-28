@@ -23,6 +23,14 @@ export async function GET(request: Request) {
         if (equipmentId) where.equipmentId = equipmentId
         if (type) where.type = type
 
+        // Role-based filtering
+        if (user.role === 'TECHNICIAN') {
+            where.assignedToId = user.id
+        } else if (user.role === 'EMPLOYEE') {
+            where.createdById = user.id
+        }
+        // ADMIN and MANAGER see all requests (respecting other filters)
+
         const requests = await prisma.maintenanceRequest.findMany({
             where,
             include: {
