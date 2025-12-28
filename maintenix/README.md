@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 🛠️ MAINTENIX - Modern Maintenance Management System
 
-First, run the development server:
+![Maintenix Dashboard](./public/dashboard.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Demo
+**[Deploy URL Placeholder]**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧐 The Problem
+In the fast-paced industrial and manufacturing sectors, effective maintenance management is often the bottleneck that hampers productivity. Companies face several critical challenges:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Chaotic Workflows**: Maintenance requests are tracked via spreadsheets, emails, or verbal communication, leading to lost requests and lack of accountability.
+- **Downtime**: Without predictive and organized maintenance, equipment failure rates increase, causing costly production downtime.
+- **Resource Misallocation**: Technicians are often double-booked or idle due to poor scheduling visibility.
+- **Lack of Transparency**: Stakeholders (Admins, Managers, Employees) lack a unified view of the system's health.
 
-## Learn More
+## 💡 The Solution
+**MAINTENIX** is a comprehensive, role-based maintenance management platform designed to streamline operations, reduce downtime, and enhance accountability.
 
-To learn more about Next.js, take a look at the following resources:
+By centralizing equipment tracking, work orders, and team management, Maintenix provides:
+- **Role-Based Clarity**: Distinct interfaces for Admins, Technicians, and Employees ensure everyone focuses on what matters to them.
+- **Real-Time Tracking**: From "New" to "Repaired", every request is tracked with timestamps and priority levels.
+- **Data-Driven Insights**: A powerful dashboard visualizes critical metrics like Technician Load, Critical Equipment, and Request Urgency.
+- **Preventive Maintenance**: Schedule recurring tasks to fix machines before they break.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ✨ Key Features
 
-## Deploy on Vercel
+### 👑 Role-Based Access Control (RBAC)
+- **Admin & Manager**: Full oversight of equipment, teams, and requests. Analytics dashboard for high-level decision making.
+- **Technician**: Focused view of assigned tasks ("My Tasks") to streamline daily work.
+- **Employee**: Simple interface to report issues and track the status of their requests.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 📊 Dynamic Dashboard
+- **Critical Stats**: Immediate visibility into broken equipment and urgent requests.
+- **Technician Load**: Monitor workforce capability to prevent burnout or underutilization.
+- **Recent Activity**: Real-time feed of the latest maintenance requests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 🏭 Asset & Work Center Management
+- Track equipment with detailed metadata (Serial #, Warranty, Location).
+- Organize assets by Category and Work Center.
+
+### 🔧 Work Order Management
+- Prioritize requests (Low, Medium, High, Urgent).
+- Assign specific teams/technicians.
+- Track time and duration of repairs.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Shadcn/UI](https://img.shields.io/badge/shadcn%2Fui-000000?style=for-the-badge&logo=shadcnui&logoColor=white)
+
+### Backend
+![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
+
+### DevOps
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+---
+
+## 🏁 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Docker & Docker Compose
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/develper21/odoo-adani.git
+   cd maintenix
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up the Database**
+   Start the PostgreSQL container:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Prepare Environment**
+   Renamed `.env.example` to `.env` and update credentials if necessary.
+   ```bash
+   # Create usage from example
+   cp .env.example .env
+   ```
+
+5. **Run Migrations & Seed Data**
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma db seed
+   ```
+
+6. **Start the App**
+   ```bash
+   npm run dev
+   ```
+
+7. **Login credentials (seeded)**
+   - **Admin**: `admin@maintenix.com` / `password123`
+   - **Manager**: `manager@maintenix.com` / `password123`
+   - **Technician**: `tech@maintenix.com` / `password123`
+   - **Employee**: `employee@maintenix.com` / `password123`
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
