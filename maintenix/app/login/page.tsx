@@ -29,13 +29,13 @@ export default function LoginPage() {
             })
 
             if (result?.error) {
-                setError("Invalid credentials")
-            } else {
-                router.push("/dashboard")
-                router.refresh()
+                setError("Invalid email or password")
+                return
             }
-        } catch {
-            setError("An error occurred. Please try again.")
+
+            router.push("/dashboard")
+        } catch (error) {
+            setError("Something went wrong. Please try again.")
         } finally {
             setLoading(false)
         }
