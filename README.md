@@ -1,7 +1,7 @@
 
 # 🛠️ MAINTENIX - Modern Maintenance Management System
 
-![Maintenix Dashboard](./public/dashboard.png)
+![Maintenix Dashboard](.maintenix/public/dashboard.png)
 
 ## 🚀 Live Demo
 **[Deploy URL Placeholder]**
